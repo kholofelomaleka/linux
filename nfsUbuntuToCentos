@@ -1,0 +1,154 @@
+Setting up NFS Share from Ubuntu 24 Server to CentOS 9 Client
+
+This document provides a step-by-step guide to configure an NFS server on Ubuntu 24 and mount the shared directory on a CentOS 9 client.
+Prerequisites:
+    • Two servers: one running Ubuntu 24 (NFS Server) and one running CentOS 9 (NFS Client).
+    • Root or sudo access on both servers.
+    • Network connectivity between the two servers. You should be able to ping the client from the server and vice versa.
+    • The IP addresses of both servers. Let's assume:
+        ◦ Ubuntu Server IP: 192.168.1.100
+        ◦ CentOS Client IP: 192.168.1.200
+Note: Replace the IP addresses with the actual IP addresses of your servers.
+
+Part 1: Configure the Ubuntu 24 NFS Server
+
+1. Install NFS Server Packages
+On your Ubuntu 24 server, install the necessary NFS server package:
+
+$ sudo apt update;
+$ sudo apt install nfs-kernel-server;
+
+2. Create the Directory to Share
+Create a directory that you want to share via NFS. For example, create /nfs_share:
+
+$ sudo mkdir /nfs_share
+
+Set appropriate permissions for this directory depending on your needs. For example, to allow read and write access for others:
+
+$ sudo chmod -R 777 /nfs_share
+$ sudo chown nobody:nogroup /nfs_share # Often useful for simpler setups
+
+Note: Adjust permissions based on your security requirements. Using 777 and nobody:nogroup is convenient for testing but may not be suitable for production environments.
+
+3. Configure the NFS Exports File
+Edit the /etc/exports file to define the directories to be shared and the clients that are allowed to access them.
+
+$ sudo nano /etc/exports
+
+  Add a line for your shared directory, specifying the client IP and desired options. For example, to allow the CentOS client (192.168.1.200) read and write access:
+  /nfs_share 192.168.1.200(rw,sync,no_subtree_check)
+
+Where:
+    • /nfs_share: The directory being exported.
+    • 192.168.1.200: The IP address of the client that is allowed to access the share. You can use a network range (e.g., 192.168.1.0/24) or a hostname if DNS is configured.
+    • rw: Grants read and write permissions to the client. Use ro for read-only.
+    • sync: This option requires the server to write changes to disk before replying. This is safer but can be slower.
+    • no_subtree_check: This option disables subtree checking, which can prevent issues when a client mounts a subdirectory of an exported filesystem. It's generally recommended.
+
+Save and close the file.
+
+4. Export the NFS Share
+Apply the changes to the /etc/exports file and export the share:
+
+$ sudo exportfs -a
+
+Verify the exported shares using:
+
+$ sudo exportfs -v
+
+5. Configure the Firewall (UFW)
+
+On Ubuntu, allow NFS traffic.
+
+$ sudo ufw allow from 192.168.1.200 to any port nfs
+$ sudo ufw enable # If firewall is not already enabled
+$ sudo ufw status
+
+Note: Replace 192.168.1.200 with the client's IP or network range.
+
+6. Restart the NFS Service
+Restart the NFS kernel server to ensure all changes are applied:
+
+$ sudo systemctl restart nfs-kernel-server
+$ sudo systemctl enable nfs-kernel-server # Ensure it starts on boot
+
+
+Part 2: Configure the CentOS 9 NFS Client
+
+1. Install NFS Client Packages
+On CentOS 9 client, install the necessary NFS client package:
+
+$ sudo dnf install nfs-utils
+
+2. Configure the Firewall (firewalld)
+
+CentOS 9 uses firewalld. allow NFS traffic through the firewall.
+
+$ sudo firewall-cmd --permanent --add-service=nfs
+$ sudo firewall-cmd --reload
+$ sudo firewall-cmd --list-services # Verify nfs is listed
+
+3. Create a Mount Point
+
+Create a directory on the CentOS client where you want to mount the NFS share. For example, let's create /mnt/ubuntu_share:
+
+$ sudo mkdir /mnt/ubuntu_share
+
+4. Mount the NFS Share (Manual)
+
+Manually mount the NFS share to test the connection:
+
+$ sudo mount 192.168.1.100:/nfs_share /mnt/ubuntu_share
+
+Where:
+    • 192.168.1.100: The IP address of the Ubuntu NFS server.
+    • /nfs_share: The directory being exported on the server.
+    • /mnt/ubuntu_share: The local directory on the client where the share will be mounted.
+
+After mounting, test by navigating to /mnt/ubuntu_share and see the contents of the /nfs_share directory on the Ubuntu server.
+
+$ ls /mnt/ubuntu_share
+$ sudo touch /mnt/ubuntu_share/test_file
+$ ls /mnt/ubuntu_share
+
+To unmount the share:
+$ sudo umount /mnt/ubuntu_share
+
+5. Configure Automatic Mounting (via /etc/fstab)
+
+To have the NFS share automatically mounted every time the CentOS client boots, add an entry to the /etc/fstab file.
+
+$ sudo nano /etc/fstab
+
+Add the following line to the end of the file:
+192.168.1.100:/nfs_share /mnt/ubuntu_share nfs defaults,_netdev 0 0
+
+Where:
+    • 192.168.1.100:/nfs_share: The source (server IP and shared directory).
+    • /mnt/ubuntu_share: The mount point on the client.
+    • nfs: The filesystem type.
+    • defaults: Standard mount options (rw, suid, dev, exec, auto, nouser, async).
+    • _netdev: This option ensures that the system waits for the network to be available before attempting to mount the NFS share. This is important for network mounts during boot.
+    • 0 0: These are for dump and fsck options, typically set to 0 for NFS mounts.
+
+Save and close the file.
+Test the /etc/fstab entry without rebooting by attempting to mount all entries:
+
+$ sudo mount -a
+
+If there are no errors, the share should be mounted. Verify with df -h or findmnt.
+Testing
+    • On the CentOS client, verify the share is mounted:
+$ df -h /mnt/ubuntu_share
+$ findmnt /mnt/ubuntu_share
+
+Summary
+    • Create a file in the mounted directory from the CentOS client and check if it appears on the Ubuntu server.
+    • Create a file in the shared directory on the Ubuntu server and check if it appears on the CentOS client.
+Important Considerations
+    • Security: NFSv3 is the default version and can have security limitations. Consider using NFSv4 with Kerberos for enhanced security in production environments. The sync option in /etc/exports is important for data integrity.
+    • Firewall: Ensure that firewalls on both the server and client are configured correctly to allow NFS traffic (typically TCP/UDP ports 111, 2049, and potentially others depending on RPC services).
+    • Permissions: Pay close attention to file permissions on the shared directory on the server and how they interact with the user mapping between the server and client. nobody:nogroup is simple but might not align with your user structure.
+    • Troubleshooting: Use commands like showmount -e <server_ip> from the client to see exported shares, rpcinfo -p <server_ip> to check RPC services, and check logs (journalctl on both systems) if you encounter issues.
+
+By following these steps, you should have a working NFS share from your Ubuntu 24 server mounted on your CentOS 9 client.
