@@ -1,0 +1,51 @@
+
+cat -n -- display output with line numbers
+grep -ni <pattern> <file> -- display matching pattern with line number
+
+## Pipes are not limited to 1 command... 
+strings <file> | grep -i <pattern> | head -1 | cut -d' ' -f2 -- takes readable text from <file>, greps the <pattern>, then uses cut (delimiter ' ' <-- space) and prints the secoond field -f2
+
+## The tr Command -- translates (replaces) characters
+grep -in <pattern> <input_file> |head -2 | cut -d' ' -f3,4 |tr " " "-" -- tr replace space with a "-"
+
+## The column command - display the output in a table format
+grep -in <pattern> <input_file> |head -2 | cut -d' ' -f1,3,4 |column -t
+
+## PROCESSES
+ps -ef
+ps -ef --forest
+ps -u <username> 
+pstree
+top
+
+kill [-sig] pid -- kill -l to list all signals
+
+## RUN A COMMAND AS A DIFFERENT USER
+su -c '<command>' [user] 
+sudo su -c 'whoami' root
+
+## TEST Command(man test to see all test oprions)
+- [ -e filename ] - to see if file exists ...
+
+## DATE VARIABLE
+- DATE=$(date +%F)
+
+## Check if something is installed
+- run ps to see if it has a process running...
+- Or use dpkg(ubuntu), rpm(redhat)
+- dpkg -l |grep <process>
+- rpm -qa |grep <process>
+
+## Get VM IP address
+/sbin/ip addr
+1. loopback 127.0.0.1
+2. inet line gives the ip address
+
+## To check if nginx is running
+curl http://127.0.0.1 - 
+
+## Check CPU & CORES
+- cat /proc/cpuinfo
+- free -h
+
+

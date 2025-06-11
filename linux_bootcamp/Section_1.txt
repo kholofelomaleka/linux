@@ -1,0 +1,5 @@
+1. Linux Distributions
+-- Linux = OS, therefore Linux distribution is a collection of software and application bundled together.
+-- Distributions / Distro / Flavour ==> have curated software that work well together.
+
+-- **Linux Kernal** (All Distributions have a kernal) - This is the intermediary between the software/applications and hardware.  The kernal is the heart/core of the linux distro
