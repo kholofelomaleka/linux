@@ -1,0 +1,140 @@
+" ==============================================================================
+" .vimrc for CentOS 7 - A template for coding"
+"
+" This file provides a solid foundation for using Vim as a coding editor.
+" It's well-commented to explain each setting. Feel free to uncomment,
+" modify, or add new lines to suit your personal workflow.
+" ==============================================================================
+
+" --- Basic Settings ---
+" Set compatibility to Vim (not Vi)
+set nocompatible
+
+" Enable filetype detection and plugins
+filetype plugin indent on
+
+" Set the leader key to a comma
+let mapleader = ","
+
+" Enable syntax highlighting
+syntax on
+
+" Set the color scheme (uncomment one you like, or install a new one)
+" colorscheme darkblue
+colorscheme desert
+" colorscheme default
+
+" Enable 256-color support
+if &term =~ "256color"
+        set t_Co=256
+        endif
+
+        " --- UI & Appearance ---
+        " Display line numbers
+        set number
+
+        " Show the current mode in the command line
+        set showmode
+
+        " Always show the status line
+        set laststatus=2
+
+        " Set the tab width to 4 spaces
+        set tabstop=4
+        set softtabstop=4
+
+        " Use spaces instead of tabs
+        set expandtab
+
+        " Number of spaces for autoindenting
+        set shiftwidth=4
+
+        " Enable smart auto-indenting
+        set autoindent
+        set smartindent
+
+        " Highlight the current line
+        set cursorline
+
+        " Highlight the current column (can be distracting)
+        " set cursorcolumn
+
+        " Show matching parentheses
+        set showmatch
+
+        " Set encoding to UTF-8
+        set encoding=utf-8
+        set fileencoding=utf-8
+
+        " Enable mouse support (useful for terminals with mouse support)
+        " set mouse=a
+
+        " --- Search & Navigation ---
+        " Incremental search
+        set incsearch
+
+        " Highlight all search matches
+        set hlsearch
+
+        " Ignore case in search
+        set ignorecase
+
+        " Override 'ignorecase' when a capital letter is used in search
+        set smartcase
+
+        " --- Backups & Swaps ---
+        " Create a backup file
+        set backup
+
+        " Directory for backup files
+        set backupdir=~/.vim/backup
+
+        " Create a swap file
+        " set swapfile
+
+        " Directory for swap files
+        " set directory=~/.vim/swap
+
+        " Do not create a swap file (useful for SSDs)
+        set noswapfile
+
+        " --- Code Folding ---
+        " Enable code folding based on syntax
+        set foldmethod=syntax
+
+        " Set how folds are opened/closed (e.g., 'zR' to open all, 'zM' to close all)
+        " To use folding, you can use 'za' to toggle a fold, 'zo' to open one, 'zc' to close one.
+        " For more folding commands, see ':help fold-commands'
+
+        " --- Plugins (if you use a plugin manager like Vundle, vim-plug, etc.) ---
+        " Example using vim-plug (uncomment and install vim-plug first)
+        " To install vim-plug, see https://github.com/junegunn/vim-plug
+        "
+        " call plug#begin('~/.vim/plugged')
+        "
+        " Plug 'tpope/vim-surround'       " Quickly change surrounding characters (e.g., "", '')
+        " Plug 'tpope/vim-commentary'     " Easily comment out code with 'gcc'
+        " Plug 'scrooloose/nerdtree'      " File system explorer
+        " Plug 'kien/ctrlp.vim'           " Fuzzy file finder
+        "
+        " call plug#end()
+        "
+        " --- Custom Mappings ---
+        " Map the leader key to save the file
+        nnoremap <leader>w :w<cr>
+
+        " Map the leader key to save and quit
+        nnoremap <leader>q :wq<cr>
+
+        " Map F5 to compile and run (example for C++)
+        " Change this to your specific build command
+        " nnoremap <F5> :!g++ % -o %:r && ./%:r<cr>
+
+        " A mapping to toggle spell check
+        " map <leader>s :setlocal spell! spelllang=en_us<CR>
+
+        " A simple mapping to clear search highlighting
+        nnoremap <leader><space> :nohlsearch<cr>
+
+        " --- End of .vimrc ---
+        " ==============================================================================
