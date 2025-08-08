@@ -49,3 +49,22 @@ curl http://127.0.0.1 -
 - free -h
 
 
+## Extend file systems using LVM
+- fdisk -l
+- df -h
+- vgdisplay
+- lvdisplay
+## Attach physical storage
+- pvdisplay
+- pvcreate /dev/vdh
+## Make sure the disk is attached 
+- pvdisplay
+- vgextend centosnode1 /dev/vdh
+- lvdisplay
+- lvextend -l +100%FREE /dev/centosnode1/root
+- df -h
+- lvdisplay
+- for ext4 disks : resize2fs /dev/centosnode1/root
+- for xfs disks  : xfs_growfs /
+- lvdisplay
+- df -h
